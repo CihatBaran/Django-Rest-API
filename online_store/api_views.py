@@ -2,7 +2,7 @@ from online_store.models import Product
 from online_store.serializers import ProductSerializer
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 
@@ -62,9 +62,10 @@ class ProductCreate(CreateAPIView):
         return super().create(request, *args, **kwargs)
 
 
-class ProductDestroy(DestroyAPIView):
+class ProductRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     lookup_field = 'id'
+    serializer_class = ProductSerializer
 
     def delete(self, request, *args, **kwargs):
         product_id = request.data.get('id')
@@ -72,4 +73,16 @@ class ProductDestroy(DestroyAPIView):
         if response.status_code == 204:
             from django.core.cache import cache
             cache.delete(f"product_data_{product_id}")
+        return response
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        if response.status_code == 200:
+            from django.core.cache import cache
+            product = response.data
+            cache.set(f"product_data_{product['id']}", {
+                'name': product['name'],
+                'description': product['description'],
+                'price': product['price'],
+            })
         return response
