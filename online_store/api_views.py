@@ -23,7 +23,7 @@ class ProductList(ListAPIView):
     # filters
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filter_fields = ['id']
-    search_fields = ["=name", "description"]
+    search_fields = ["name", "description"]
 
     def get_queryset(self):
         on_sale = self.request.query_params.get("on_sale", None)
@@ -45,6 +45,13 @@ class ProductCreate(CreateAPIView):
     def create(self, request, *args, **kwargs):
         try:
             price = request.data.get('price')
+            sale_start_date = request.data.get('sale_start')
+            sale_end_date = request.data.get('sale_end')
+
+            if sale_end_date < sale_start_date:
+                raise ValidationError(
+                    {'sale_end': 'sale end cannot be earlier than sale start'})
+
             if price is not None and float(price) <= 0.0:
                 raise ValidationError(
                     {'price': 'price must be above 0 dollars'})

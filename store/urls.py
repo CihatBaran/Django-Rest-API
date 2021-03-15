@@ -15,10 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from online_store.api_views import ProductList
+from online_store.api_views import ProductList, ProductCreate
 
 urlpatterns = [
     path('api/v1/products', ProductList.as_view()),
+    path('api/v1/products/new', ProductCreate.as_view()),
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path("api/", include("online_store.urls")),
