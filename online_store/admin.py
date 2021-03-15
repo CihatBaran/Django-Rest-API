@@ -6,7 +6,7 @@ from online_store.models import Product, ShoppingCart, ShoppingCartItem
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "description", "sale_start", "sale_end"]
+    list_display = ["id", "name", "description", "sale_start", "sale_end"]
 
     class Meta:
         model = Product

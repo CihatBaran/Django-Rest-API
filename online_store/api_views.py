@@ -2,7 +2,7 @@ from online_store.models import Product
 from online_store.serializers import ProductSerializer
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 
@@ -43,6 +43,7 @@ class ProductCreate(CreateAPIView):
     serializer_class = ProductSerializer
 
     def create(self, request, *args, **kwargs):
+
         try:
             price = request.data.get('price')
             sale_start_date = request.data.get('sale_start')
@@ -59,3 +60,16 @@ class ProductCreate(CreateAPIView):
             raise ValidationError({'price': 'price should be a number'})
 
         return super().create(request, *args, **kwargs)
+
+
+class ProductDestroy(DestroyAPIView):
+    queryset = Product.objects.all()
+    lookup_field = 'id'
+
+    def delete(self, request, *args, **kwargs):
+        product_id = request.data.get('id')
+        response = super().delete(request, *args, **kwargs)
+        if response.status_code == 204:
+            from django.core.cache import cache
+            cache.delete(f"product_data_{product_id}")
+        return response
