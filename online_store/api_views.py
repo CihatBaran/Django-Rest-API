@@ -1,13 +1,12 @@
+from online_store.models import Product
+from online_store.serializers import ProductSerializer
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.filters import SearchFilter
+from rest_framework.generics import ListAPIView, CreateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 
-from rest_framework.generics import ListAPIView
-from rest_framework.filters import SearchFilter
-from rest_framework.pagination import LimitOffsetPagination
-
-
-from online_store.serializers import ProductSerializer
-from online_store.models import Product
+from rest_framework.exceptions import ValidationError
 
 
 class ProductPagination(LimitOffsetPagination):
@@ -38,3 +37,18 @@ class ProductList(ListAPIView):
         elif on_sale.lower() == "false":
             now = timezone.now()
             return queryset.exclude(sale_start__lte=now, sale_end__gte=now)
+
+
+class ProductCreate(CreateAPIView):
+    serializer_class = ProductSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            price = request.data.get('price')
+            if price is not None and float(price) <= 0.0:
+                raise ValidationError(
+                    {'price': 'price must be above 0 dollars'})
+        except ValueError:
+            raise ValidationError({'price': 'price should be a number'})
+
+        return super().create(request, *args, **kwargs)
