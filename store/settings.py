@@ -110,11 +110,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-DATETIME_FORMAT = 'Y-m-d'
+# DATETIME_FORMAT = 'Y-m-d'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+# USE_I18N = True
+USE_I18N = False
 
 USE_L10N = False
 

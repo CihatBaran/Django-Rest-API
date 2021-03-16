@@ -18,6 +18,14 @@ class ProductSerializer(serializers.ModelSerializer):
     cart_items = serializers.SerializerMethodField()
     price = serializers.DecimalField(
         min_value=1.00, max_value=100000.00, max_digits=None, decimal_places=2)
+    sale_start = serializers.DateTimeField(
+        input_formats=['%Y-%m-%d'], format=None, allow_null=True,
+        help_text="Accepted format 2021-01-30",
+    )
+    sale_end = serializers.DateTimeField(
+        input_formats=['%Y-%m-%d'], format=None, allow_null=True,
+        help_text="Accepted format 2021-01-30",
+    )
 
     class Meta:
         model = Product
@@ -40,3 +48,11 @@ class ProductSerializer(serializers.ModelSerializer):
     # data = serializer.to_representation(product)
     # renderer = JSONRenderer()
     # print(renderer.render(data))
+
+
+class ProductStatSerializer(serializers.Serializer):
+    stats = serializers.DictField(
+        child=serializers.ListField(
+            child=serializers.IntegerField()
+        )
+    )
